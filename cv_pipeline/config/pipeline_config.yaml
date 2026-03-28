@@ -1,0 +1,194 @@
+# BJJU Admin Portal - Computer Vision Pipeline Configuration
+# Stage 1: Data Ingestion & Preprocessing
+
+# ============================================================================
+# PATH CONFIGURATION
+# ============================================================================
+paths:
+  # Input directory containing raw images from WhatsApp
+  raw_images: "./data/images"
+  
+  # Output directory for preprocessed images
+  preprocessed_images: "./data/preprocessed"
+  
+  # Log directory for structured logs
+  logs: "./data/logs"
+  
+  # Failed images directory (for debugging)
+  failed_images: "./data/failed"
+
+# ============================================================================
+# FILE PARSING CONFIGURATION
+# ============================================================================
+parsing:
+  # Regex pattern for extracting date and session from filename
+  # Format: YYYYMMDD{session}.jpg or YYYYMMDD{session}.jpeg
+  # Example: 202602241.jpg -> date: 2026-02-24, session: 1
+  # Also supports: 2026022401.jpg -> date: 2026-02-24, session: 01
+  filename_pattern: "^(\\d{4})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])([0-9]+)\\.jpe?g$"
+  
+  # Supported file extensions
+  extensions:
+    - ".jpg"
+    - ".jpeg"
+  
+  # Case-insensitive matching
+  case_insensitive: true
+  
+  # Recursive search (disabled for performance)
+  recursive: false
+
+# ============================================================================
+# IMAGE VALIDATION CONFIGURATION
+# ============================================================================
+validation:
+  # Minimum image dimensions (width x height)
+  min_width: 640
+  min_height: 480
+  
+  # Aspect ratio constraints (width/height)
+  # WhatsApp group photos typically range from 4:3 to 16:9
+  aspect_ratio:
+    min: 0.5    # 1:2 (vertical)
+    max: 3.0    # 3:1 (panoramic)
+  
+  # Maximum file size in MB (to prevent memory issues)
+  max_file_size_mb: 50
+  
+  # Verify JPEG integrity before full load
+  verify_integrity: true
+
+# ============================================================================
+# PREPROCESSING CONFIGURATION
+# ============================================================================
+preprocessing:
+  # Resolution normalization
+  # Limits the longest dimension to this value (maintains aspect ratio)
+  # This MUST occur first to optimize processing time (2-5 seconds budget)
+  max_dimension: 2048
+  
+  # Interpolation method for resizing
+  # Options: INTER_AREA (best for downsampling), INTER_CUBIC, INTER_LINEAR
+  resize_interpolation: "INTER_AREA"
+  
+  # Color space conversion
+  # Guaranteed conversion to RGB
+  ensure_rgb: true
+  
+  # Bilateral filter configuration
+  # Reduces JPEG compression artifacts while preserving edges
+  # Critical for WhatsApp images
+  bilateral_filter:
+    enabled: true
+    # Diameter of pixel neighborhood (larger = slower, more blur)
+    d: 9
+    # Filter sigma in color space (larger = more colors mixed)
+    sigma_color: 75
+    # Filter sigma in coordinate space (larger = farther pixels influence)
+    sigma_space: 75
+  
+  # CLAHE (Contrast Limited Adaptive Histogram Equalization)
+  # Applied to L channel of LAB color space
+  # Helps uniformize mat lighting variations
+  clahe:
+    enabled: true
+    # Clip limit for contrast limiting (higher = more contrast)
+    clip_limit: 2.0
+    # Tile grid size for histogram equalization
+    tile_grid_size: [8, 8]
+  
+  # Output format
+  output_format: "JPEG"
+  output_quality: 95  # High quality to preserve details for face detection
+
+# ============================================================================
+# PERFORMANCE CONFIGURATION
+# ============================================================================
+performance:
+  # Maximum processing time per image (seconds)
+  # Total pipeline budget: 120 seconds
+  # Stage 1 budget: 2-5 seconds
+  max_processing_time_per_image: 5
+  
+  # Number of worker threads for parallel processing
+  # Set to 1 for sequential processing (easier debugging)
+  # Set to -1 to use all available CPU cores
+  num_workers: 1
+  
+  # Enable performance profiling
+  enable_profiling: false
+
+# ============================================================================
+# LOGGING CONFIGURATION
+# ============================================================================
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  
+  # Log format
+  format: "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
+  
+  # Enable JSON structured logging for production
+  json_logs: false
+  
+  # Log rotation
+  rotation: "100 MB"
+  retention: "30 days"
+  compression: "zip"
+  
+  # Log file naming
+  log_filename: "ingestion_stage1_{time}.log"
+  
+  # Log to console in addition to file
+  console_output: true
+
+# ============================================================================
+# METADATA CONFIGURATION
+# ============================================================================
+metadata:
+  # Enable metadata generation for downstream stages
+  enabled: true
+  
+  # Metadata output format
+  format: "json"
+  
+  # Include preprocessing operations in metadata
+  include_preprocessing_ops: true
+  
+  # Include validation results in metadata
+  include_validation_results: true
+  
+  # Metadata filename pattern
+  metadata_filename: "{original_filename}_metadata.json"
+
+# ============================================================================
+# ERROR HANDLING CONFIGURATION
+# ============================================================================
+error_handling:
+  # Continue processing on individual image failure
+  continue_on_error: true
+  
+  # Save failed images to failed_images directory
+  save_failed_images: true
+  
+  # Maximum number of retries for transient errors
+  max_retries: 2
+  
+  # Retry delay in seconds
+  retry_delay: 1
+
+# ============================================================================
+# DEVELOPMENT/DEBUG CONFIGURATION
+# ============================================================================
+debug:
+  # Save intermediate processing steps
+  save_intermediate_steps: false
+  
+  # Directory for intermediate outputs
+  intermediate_dir: "./data/intermediate"
+  
+  # Enable visual debugging (save annotated images)
+  visual_debug: false
+  
+  # Limit number of images to process (0 = no limit)
+  max_images_to_process: 0

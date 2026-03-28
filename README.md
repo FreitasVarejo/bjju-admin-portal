@@ -49,14 +49,33 @@ OUTPUT (./output/masks/)
 
 ## 🚀 Quick Start
 
+### Stage 1: Data Ingestion & Preprocessing
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Place images in data/raw/ directory
+# Images must follow naming pattern: YYYYMMDD{session}.jpg
+# Example: 20260315_1.jpg
+
+# Run Stage 1 pipeline
+./run_stage1.sh
+
+# Or run directly
+python -m cv_pipeline.stage1_ingestion.ingestion
+```
+
 ### Using Docker (Recommended)
 
 ```bash
 # Build container
-docker build -t bjju-cv-pipeline .
+docker build -t bjju-cv-pipeline:stage1 .
 
-# Run pipeline
-docker run --gpus all -v $(pwd)/images:/app/images -v $(pwd)/output:/app/output bjju-cv-pipeline
+# Run Stage 1
+docker run -v $(pwd)/data/raw:/app/images \
+           -v $(pwd)/data:/app/data \
+           bjju-cv-pipeline:stage1
 ```
 
 ### Local Installation
@@ -69,22 +88,41 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Run pipeline
-python pipeline.py
+# Run Stage 1 pipeline
+python -m cv_pipeline.stage1_ingestion.ingestion
 ```
 
 ## 📁 Project Structure
 
 ```
 bjju-admin-portal/
-├── docs/
-│   ├── Project_Overview.md      # Detailed architecture and design rationale
-│   ├── Environment_Setup.md     # Installation and setup instructions
-│   ├── Roadmap_Next_Steps.md   # Future enhancements and roadmap
-│   └── pipeline/                # Pipeline implementation details
-├── media/                        # Reference images and screenshots
-├── .gitignore                    # Git ignore configuration
-└── README.md                     # This file
+├── cv_pipeline/
+│   ├── stage1_ingestion/        # Stage 1: Data ingestion & preprocessing
+│   │   ├── models.py            # Data models and structures
+│   │   ├── scanner.py           # File discovery and parsing
+│   │   ├── validator.py         # Image validation
+│   │   ├── preprocessor.py      # WhatsApp-focused preprocessing
+│   │   ├── ingestion.py         # Main orchestrator
+│   │   └── logger.py            # Structured logging
+│   ├── config/
+│   │   └── pipeline_config.yaml # Central configuration
+│   ├── utils/
+│   │   └── exceptions.py        # Custom exceptions
+│   └── README.md                # Stage 1 documentation
+├── data/
+│   ├── raw/                     # Input images (WhatsApp photos)
+│   ├── preprocessed/            # Stage 1 output
+│   ├── logs/                    # Processing logs
+│   └── failed/                  # Failed images for debugging
+├── tests/
+│   └── test_stage1/             # Unit tests for Stage 1
+├── docs/                        # Project documentation
+├── media/                       # Reference images and screenshots
+├── Dockerfile                   # Container configuration
+├── requirements.txt             # Python dependencies
+├── run_stage1.sh                # Stage 1 execution script
+├── .gitignore                   # Git ignore configuration
+└── README.md                    # This file
 ```
 
 ## 📚 Documentation
@@ -92,6 +130,7 @@ bjju-admin-portal/
 - **[Project Overview](docs/Project_Overview.md)** - Comprehensive architecture, memory management strategy, and design decisions
 - **[Environment Setup](docs/Environment_Setup.md)** - Detailed setup instructions for local and Docker environments
 - **[Roadmap & Next Steps](docs/Roadmap_Next_Steps.md)** - Future enhancements and development roadmap
+- **[Stage 1 Documentation](cv_pipeline/README.md)** - Complete guide for Stage 1 ingestion and preprocessing
 
 ## 🔑 Key Features
 

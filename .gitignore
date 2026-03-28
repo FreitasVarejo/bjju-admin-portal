@@ -133,6 +133,7 @@ dmypy.json
 # Project-specific
 images/
 output/
+data/
 *.jpg
 *.jpeg
 *.png

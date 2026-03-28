@@ -1,0 +1,31 @@
+# BJJU Admin Portal - Computer Vision Pipeline
+# Requirements for Stage 1: Data Ingestion & Preprocessing
+
+# Core Dependencies
+# ==================
+
+# Computer Vision & Image Processing
+opencv-python==4.9.0.80        # Core OpenCV for image processing
+opencv-contrib-python==4.9.0.80 # Additional OpenCV modules
+Pillow==11.0.0                  # Python Imaging Library for JPEG handling (Python 3.13 compatible)
+numpy==1.26.4                   # Numerical operations (required by OpenCV)
+
+# Logging
+loguru==0.7.2                   # Structured logging with rotation
+
+# Configuration
+PyYAML==6.0.1                   # YAML configuration file parsing
+
+# Development & Testing
+# ======================
+pytest==8.0.0                   # Testing framework
+pytest-cov==4.1.0               # Code coverage for tests
+black==24.1.1                   # Code formatting
+flake8==7.0.0                   # Linting
+mypy==1.8.0                     # Type checking
+
+# Optional Performance Enhancements
+# ==================================
+# Uncomment for production performance optimization
+# opencv-python-headless==4.9.0.80  # Headless OpenCV (smaller footprint)
+# numba==0.59.0                     # JIT compilation for performance
