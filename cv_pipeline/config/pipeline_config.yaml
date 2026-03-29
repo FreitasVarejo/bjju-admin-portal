@@ -78,14 +78,15 @@ preprocessing:
   # Bilateral filter configuration
   # Reduces JPEG compression artifacts while preserving edges
   # Critical for WhatsApp images
+  # FIXED: Reduced parameters to avoid blurring small background faces (Issue #1)
   bilateral_filter:
     enabled: true
     # Diameter of pixel neighborhood (larger = slower, more blur)
-    d: 9
+    d: 5
     # Filter sigma in color space (larger = more colors mixed)
-    sigma_color: 75
+    sigma_color: 40
     # Filter sigma in coordinate space (larger = farther pixels influence)
-    sigma_space: 75
+    sigma_space: 40
   
   # CLAHE (Contrast Limited Adaptive Histogram Equalization)
   # Applied to L channel of LAB color space

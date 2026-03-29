@@ -76,13 +76,13 @@ class Detection:
             'bbox_expanded': self.bbox_expanded.tolist() if self.bbox_expanded is not None else None,
             'confidence': float(self.confidence),
             'class_id': self.class_id,
-            'width': self.width,
-            'height': self.height,
-            'area': self.area,
-            'center': self.center,
-            'aspect_ratio': self.aspect_ratio,
-            'scale_detected': self.scale_detected,
-            'occlusion_score': self.occlusion_score,
+            'width': float(self.width),  # FIXED: Convert numpy float32 to native Python float
+            'height': float(self.height),  # FIXED: Convert numpy float32 to native Python float
+            'area': float(self.area),  # FIXED: Convert numpy float32 to native Python float
+            'center': [float(x) for x in self.center],  # FIXED: Ensure tuple elements are native floats
+            'aspect_ratio': float(self.aspect_ratio),  # FIXED: Convert numpy float32 to native Python float
+            'scale_detected': float(self.scale_detected),  # FIXED: Convert numpy float32 to native Python float
+            'occlusion_score': float(self.occlusion_score),  # FIXED: Convert numpy float32 to native Python float
             'landmarks': self.landmarks.tolist() if self.landmarks is not None else None,
             'rejection_reason': self.rejection_reason
         }
@@ -117,9 +117,10 @@ class DetectionConfig:
     tiled_inference_min: int = 2048  # Use tiling
     
     # Filtering configuration
+    # FIXED: Lowered min_face_width/height from 30 to 15 to detect small background faces (Issue #1)
     min_confidence: float = 0.5
-    min_face_width: int = 30
-    min_face_height: int = 30
+    min_face_width: int = 15
+    min_face_height: int = 15
     max_face_width: int = 1000
     max_face_height: int = 1000
     min_aspect_ratio: float = 0.5
@@ -143,6 +144,7 @@ class DetectionConfig:
         tiling_cfg = config_dict.get('tiling', {})
         filtering_cfg = config_dict.get('filtering', {})
         output_cfg = config_dict.get('output', {})
+        debug_cfg = config_dict.get('debug', {})  # FIXED: Added debug_cfg extraction (Issue #3)
         
         return cls(
             weights_path=Path(model_cfg.get('weights_path', '/app/models/yolov8/yolov8n-face.pt')),
@@ -163,7 +165,8 @@ class DetectionConfig:
             min_aspect_ratio=filtering_cfg.get('min_aspect_ratio', 0.5),
             max_aspect_ratio=filtering_cfg.get('max_aspect_ratio', 2.0),
             bbox_expansion_ratio=output_cfg.get('bbox_expansion_ratio', 0.3),
-            save_debug_visualizations=output_cfg.get('save_debug_visualizations', True),
+            # FIXED: Read from debug.visual_debug instead of output.save_debug_visualizations (Issue #3)
+            save_debug_visualizations=debug_cfg.get('visual_debug', True),
         )
 
 

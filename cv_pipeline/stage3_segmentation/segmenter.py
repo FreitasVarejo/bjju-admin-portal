@@ -38,6 +38,23 @@ class SegmentationError(PipelineException):
     pass
 
 
+def convert_to_json_serializable(obj: Any) -> Any:
+    """
+    FIXED: Convert numpy types to native Python types for JSON serialization.
+    Recursively processes dicts and lists to ensure all numpy types are converted.
+    """
+    if isinstance(obj, dict):
+        return {k: convert_to_json_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [convert_to_json_serializable(item) for item in obj]
+    elif isinstance(obj, np.bool_):
+        return bool(obj)
+    elif isinstance(obj, (np.integer, np.floating)):
+        return obj.item()
+    else:
+        return obj
+
+
 def load_segmentation_model(config: SegmentationConfig) -> Any:
     """
     Load MobileSAM model after YOLO has been unloaded.
@@ -312,7 +329,8 @@ def refine_mask(
     if config.keep_largest:
         mask = keep_largest_component(mask)
     
-    # Step 5: Smooth edges (optional)
+    # Step 5: Smooth edges (FIXED: Always apply for small faces to avoid jagged edges - Issue #2)
+    # This is critical when small faces are upscaled to prevent staircase artifacts
     if config.smooth_edges:
         mask = smooth_mask_edges(mask, config.smooth_sigma)
     
@@ -406,9 +424,12 @@ def apply_black_background(
         Image with black background
     """
     # Ensure mask matches image dimensions
+    # FIXED: Changed from INTER_NEAREST to INTER_LINEAR for smoother edges (Issue #2)
     if mask.shape[:2] != image.shape[:2]:
         mask = cv2.resize(mask, (image.shape[1], image.shape[0]),
-                         interpolation=cv2.INTER_NEAREST)
+                         interpolation=cv2.INTER_LINEAR)
+        # Re-threshold after interpolation to maintain binary mask
+        mask = (mask > 127).astype(np.uint8) * 255
     
     # Create output image
     result = np.zeros_like(image)
@@ -647,7 +668,8 @@ def save_face_output(
         
         # Save metadata JSON
         with open(metadata_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
+            # FIXED: Convert numpy types to JSON-serializable Python types
+            json.dump(convert_to_json_serializable(metadata), f, indent=2)
     
     logger.debug(f"Saved: {output_path.name}")
 
@@ -676,7 +698,8 @@ def save_session_manifest(
     
     # Save manifest
     with open(manifest_path, 'w') as f:
-        json.dump(session_result.to_dict(), f, indent=2)
+        # FIXED: Convert numpy types to JSON-serializable Python types
+        json.dump(convert_to_json_serializable(session_result.to_dict()), f, indent=2)
     
     logger.debug(f"Saved session manifest: {manifest_path}")
 

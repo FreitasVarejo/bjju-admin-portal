@@ -146,6 +146,7 @@ def run_stage2():
             load_detection_model,
             unload_detection_model,
             process_image as detect_image,
+            save_detection_debug,  # FIXED: Added import (Issue #3)
         )
         from cv_pipeline.stage2_detection.models import DetectionConfig
         from cv_pipeline.stage1_ingestion.models import ImageMetadata, ImageStatus
@@ -232,6 +233,10 @@ def run_stage2():
                     model=model,
                     config=config
                 )
+                
+                # FIXED: Save debug visualizations if enabled (Issue #3)
+                if config.save_debug_visualizations and result.debug_image is not None:
+                    save_detection_debug(result, OUTPUT_DIR)
                 
                 detection_results[img_path] = result
                 faces_detected = len(result.detections)
@@ -346,7 +351,7 @@ def run_stage3(detection_results):
                         output_dir=output_base
                     )
                     
-                    session_segmented += seg_result.success_count
+                    session_segmented += len(seg_result.faces)  # FIXED: Use len(faces) instead of success_count attribute
                 
                 total_segmented += session_segmented
                 successful_sessions += 1
