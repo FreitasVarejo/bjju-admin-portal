@@ -1,5 +1,5 @@
 # BJJU Admin Portal - Computer Vision Pipeline
-# Requirements for Stage 1: Data Ingestion & Preprocessing
+# Requirements for all pipeline stages
 
 # Core Dependencies
 # ==================
@@ -10,10 +10,24 @@ opencv-contrib-python==4.9.0.80 # Additional OpenCV modules
 Pillow==11.0.0                  # Python Imaging Library for JPEG handling (Python 3.13 compatible)
 numpy==1.26.4                   # Numerical operations (required by OpenCV)
 
+# Deep Learning & Model Inference
+# =================================
+torch>=2.0.0                    # PyTorch for GPU acceleration
+torchvision>=0.15.0             # torchvision for NMS operations
+ultralytics>=8.0.0              # YOLOv8 implementation
+
+# Segmentation Models (Stage 3)
+# ===============================
+# Install MobileSAM:
+# pip install git+https://github.com/ChaoningZhang/MobileSAM.git
+mobile-sam                      # MobileSAM for efficient segmentation
+
 # Logging
+# =======
 loguru==0.7.2                   # Structured logging with rotation
 
 # Configuration
+# =============
 PyYAML==6.0.1                   # YAML configuration file parsing
 
 # Development & Testing

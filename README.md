@@ -127,10 +127,16 @@ bjju-admin-portal/
 
 ## 📚 Documentation
 
+- **[Quick Start - All Stages](HOW_TO_RUN.md)** - How to run the complete pipeline (Stages 1, 2, 3)
+- **[Quick Start - Stages 2 & 3](QUICKSTART_STAGES_2_3.md)** - Quick setup guide for face detection and segmentation
+- **[Installation - Stages 2 & 3](INSTALLATION_STAGES_2_3.md)** - Detailed installation for advanced stages
+- **[Implementation Summary](IMPLEMENTATION_SUMMARY.md)** - Complete overview of Stage 2 & 3 implementation
+- **[Stage 1 Quick Start](QUICKSTART.md)** - Original Stage 1 quick start guide
 - **[Project Overview](docs/Project_Overview.md)** - Comprehensive architecture, memory management strategy, and design decisions
 - **[Environment Setup](docs/Environment_Setup.md)** - Detailed setup instructions for local and Docker environments
 - **[Roadmap & Next Steps](docs/Roadmap_Next_Steps.md)** - Future enhancements and development roadmap
 - **[Stage 1 Documentation](cv_pipeline/README.md)** - Complete guide for Stage 1 ingestion and preprocessing
+- **[Stage 2 & 3 Documentation](cv_pipeline/STAGES_2_3_README.md)** - Comprehensive guide for face detection and segmentation
 
 ## 🔑 Key Features
 
